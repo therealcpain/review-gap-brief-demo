@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Review Gap Brief — Steam niche hate themes</title>
+  <meta name="description" content="Paste 3–5 Steam AppIDs. Get a one-pager of clustered negative review themes across your comps, sample quotes, and a whitespace positioning brief.">
+  <meta name="theme-color" content="#0f1419">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="seed_data.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">RG</div>
+        <div>
+          <h1>Review Gap Brief</h1>
+          <p class="tagline">3–5 AppIDs → niche hate themes + whitespace in one brief.</p>
+        </div>
+      </div>
+      <span class="badge">Public Steam reviews only</span>
+    </header>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="input-heading">
+        <h2 id="input-heading">1. Comp AppIDs</h2>
+        <label for="appIds">Paste 3–5 Steam AppIDs (comma / space / newline)</label>
+        <textarea id="appIds" spellcheck="false" rows="3" placeholder="262060, 1385380, 646570"></textarea>
+
+        <p class="hint" style="margin-top:0.65rem">Seed niche (hard turn-based / roguelike party tactics — DoP-<em>adjacent</em> comps for demo; not Depths of Providence IP):</p>
+        <div class="chips" id="seedChips" role="group" aria-label="Seed AppID chips"></div>
+
+        <div class="row" style="margin-top:0.85rem">
+          <button type="button" class="btn btn-primary" id="generateBtn">Generate brief</button>
+          <button type="button" class="btn btn-ghost" id="clearBtn">Clear</button>
+        </div>
+
+        <div class="source-box" aria-live="polite">
+          <div><span class="k">Data source</span><br><span class="v" id="dataSource">—</span></div>
+          <div><span class="k">Reviews clustered</span> <span class="v" id="reviewCount">0</span>
+            · <span class="k">Apps</span> <span class="v" id="appCount">0</span></div>
+        </div>
+        <p class="hint" id="corsNote">Browser CORS often blocks Steam’s public review JSON. Live fetch is attempted first; on failure we use the curated seed corpus for known demo AppIDs (documented in README).</p>
+        <p class="status" id="status" role="status"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="actions-heading">
+        <h2 id="actions-heading">2. Export</h2>
+        <p class="hint">Brief renders below. Copy Markdown for Notion/Discord, or download .md / print HTML.</p>
+        <div class="actions">
+          <button type="button" class="btn" id="copyMd" disabled>Copy Markdown</button>
+          <button type="button" class="btn" id="downloadMd" disabled>Download .md</button>
+          <button type="button" class="btn" id="printBrief" disabled>Print / PDF</button>
+        </div>
+        <div class="share-box" id="shareBox">
+          <label for="shareUrl">Share URL (hash-encoded AppIDs)</label>
+          <div class="row">
+            <input id="shareUrl" type="text" readonly />
+            <button type="button" class="btn" id="copyShare" style="flex:0 0 auto" disabled>Copy</button>
+          </div>
+          <p class="hint">Append UTM when you post, e.g. <code>?utm_source=reddit&amp;utm_medium=organic&amp;utm_campaign=review_gap_brief_mvp</code></p>
+        </div>
+        <aside class="ad-slot" aria-label="Ad inventory placeholder">
+          <span class="ad-label">Ad slot</span>
+          <span class="ad-copy">Sponsor / AdSense inventory (not live — ad-only monetization path; see README)</span>
+        </aside>
+      </section>
+    </div>
+
+    <section class="panel brief-panel" aria-labelledby="brief-heading">
+      <h2 id="brief-heading">3. Brief</h2>
+      <div class="empty-state" id="emptyState">Paste 3–5 AppIDs (or click a seed chip), then Generate brief.<br>Negative themes only — public Steam review text.</div>
+      <article id="briefHtml" class="brief-html" hidden></article>
+      <pre id="briefMd" class="brief-md" hidden></pre>
+    </section>
+
+    <footer class="site-foot">
+      <p><strong>Review Gap Brief</strong> — free utility for indie positioning homework. Quotes attributed to Steam recommendation IDs; link out to the store. Not affiliated with Valve.</p>
+      <p class="muted">Market-wide tool. Research case pointer (not shipped IP): Depths of Providence AppID 4996340 — use adjacent comps only in demos.</p>
+    </footer>
+  </div>
+</body>
+</html>
