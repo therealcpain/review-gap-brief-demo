@@ -417,9 +417,30 @@
     lines.push(``);
     lines.push(`> Public Steam review text only. Quotes attributed to recommendation IDs. Not affiliated with Valve.`);
     lines.push(``);
+    const topThemes = clusterResult.themes.slice(0, 8);
+    const totalReviews = clusterResult.totalReviews || 0;
+
+    lines.push(`## Theme prevalence (negative-review theme hits)`);
+    lines.push(``);
+    lines.push(`Bars / counts use clustered **theme hit counts** from keyword assignment on negative reviews (primary + optional secondary). A review may contribute to two themes. % of reviews = hits ÷ negative reviews clustered.`);
+    lines.push(``);
+    if (!topThemes.length) {
+      lines.push(`_No themes clustered — empty frequency chart._`);
+      lines.push(``);
+    } else {
+      const maxCount = Math.max(...topThemes.map((t) => t.count), 1);
+      for (const t of topThemes) {
+        const pctReviews = totalReviews ? Math.round((t.count / totalReviews) * 100) : 0;
+        const barUnits = Math.max(1, Math.round((t.count / maxCount) * 20));
+        const bar = "█".repeat(barUnits) + "░".repeat(20 - barUnits);
+        lines.push(`- \`${bar}\` **${t.label}** — ${t.count} hits (${pctReviews}% of reviews) · ${t.appCoverage}/${apps.length} comps`);
+      }
+      lines.push(``);
+    }
+
     lines.push(`## Clustered negative themes`);
     lines.push(``);
-    for (const t of clusterResult.themes.slice(0, 8)) {
+    for (const t of topThemes) {
       lines.push(`### ${t.label}`);
       lines.push(`- Frequency signal: **${t.count}** theme hits across **${t.appCoverage}/${apps.length}** comps`);
       lines.push(`- Breakdown: ${t.appBreakdown.map((a) => `${a.title} (${a.count})`).join("; ")}`);
@@ -455,15 +476,59 @@
     return lines.join("\n");
   }
 
+  function buildFreqBarsHtml(themes, totalReviews, appCount) {
+    const top = themes.slice(0, 8);
+    if (!top.length) {
+      return (
+        `<div class="freq-chart" role="img" aria-label="Theme frequency chart empty">` +
+        `<p class="freq-empty">No themes clustered yet — frequency bars unavailable.</p>` +
+        `</div>`
+      );
+    }
+    const maxCount = Math.max(...top.map((t) => t.count), 1);
+    const parts = [];
+    parts.push(`<div class="freq-chart" role="list" aria-label="Top themes by negative-review theme hit count">`);
+    parts.push(
+      `<p class="freq-legend">Sorted by clustered theme hits (keyword assignment on negative reviews). % = hits ÷ ${totalReviews} reviews. Dual-tag reviews can lift totals over 100% across themes.</p>`
+    );
+    for (const t of top) {
+      // Bar width is relative to top theme hit count (not invented scale).
+      const pctWidth = Math.max(t.count > 0 ? 3 : 0, Math.round((t.count / maxCount) * 100));
+      const pctReviews = totalReviews ? Math.round((t.count / totalReviews) * 100) : 0;
+      const aria = `${t.label}: ${t.count} hits, ${pctReviews}% of reviews, ${t.appCoverage} of ${appCount} comps`;
+      parts.push(`<div class="freq-row" role="listitem" aria-label="${escapeHtml(aria)}">`);
+      parts.push(`<div class="freq-label"><span class="freq-name">${escapeHtml(t.label)}</span>`);
+      parts.push(
+        `<span class="freq-stat">${t.count} hits · ${pctReviews}% · ${t.appCoverage}/${appCount} apps</span></div>`
+      );
+      parts.push(`<div class="freq-track" aria-hidden="true">`);
+      parts.push(
+        `<div class="freq-bar" style="width:${pctWidth}%" title="${escapeHtml(String(t.count))} hits"></div>`
+      );
+      parts.push(`</div></div>`);
+    }
+    parts.push(`</div>`);
+    return parts.join("\n");
+  }
+
   function buildHtml(apps, clusterResult, sourceLabel, gaps) {
     const parts = [];
+    const topThemes = clusterResult.themes.slice(0, 8);
+    const totalReviews = clusterResult.totalReviews || 0;
+
     parts.push(`<div class="meta">`);
     parts.push(`<strong>${apps.length} comps</strong> · ${escapeHtml(apps.map((a) => a.title).join(" · "))}<br>`);
-    parts.push(`${clusterResult.totalReviews} negative reviews · source: ${escapeHtml(sourceLabel)}`);
+    parts.push(`${totalReviews} negative reviews · source: ${escapeHtml(sourceLabel)}`);
     parts.push(`</div>`);
 
-    parts.push(`<h3>Clustered negative themes</h3>`);
-    for (const t of clusterResult.themes.slice(0, 8)) {
+    parts.push(`<h3 class="viz-primary">Theme prevalence</h3>`);
+    parts.push(buildFreqBarsHtml(clusterResult.themes, totalReviews, apps.length));
+
+    parts.push(`<h3 class="viz-secondary">Theme detail + quotes</h3>`);
+    if (!topThemes.length) {
+      parts.push(`<p class="freq-empty">No theme cards — clustering returned zero themes.</p>`);
+    }
+    for (const t of topThemes) {
       parts.push(`<div class="theme-card">`);
       parts.push(`<div class="theme-title"><span>${escapeHtml(t.label)}</span><span class="freq">${t.count} hits · ${t.appCoverage}/${apps.length} apps</span></div>`);
       parts.push(

@@ -291,6 +291,104 @@ textarea:focus, input:focus, select:focus {
   margin-bottom: 1rem;
 }
 
+
+/* Frequency bars — primary one-glance viz (clustered theme hit counts) */
+.brief-html h3.viz-primary {
+  margin: 0.35rem 0 0.55rem;
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
+}
+
+.brief-html h3.viz-secondary {
+  margin: 1.35rem 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.freq-chart {
+  margin: 0 0 0.85rem;
+  padding: 0.75rem 0.85rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.freq-legend {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.freq-empty {
+  margin: 0.35rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.freq-row {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 38%) 1fr;
+  gap: 0.4rem 0.65rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.freq-row:last-child { margin-bottom: 0.15rem; }
+
+.freq-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.freq-name {
+  font-weight: 650;
+  font-size: 0.86rem;
+  line-height: 1.25;
+  color: var(--fg);
+}
+
+.freq-stat {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.freq-track {
+  height: 12px;
+  background: var(--bg-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.freq-bar {
+  height: 100%;
+  border-radius: 999px;
+  min-width: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+@media (max-width: 560px) {
+  .freq-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    margin-bottom: 0.7rem;
+  }
+  .freq-stat { white-space: normal; }
+  .freq-track { height: 14px; }
+  .freq-chart { padding: 0.7rem 0.75rem; }
+}
+
 .theme-card {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -374,7 +472,10 @@ footer.site-foot p { margin: 0.35rem 0; }
 
 @media print {
   body { background: #fff; color: #111; }
-  .panel, .theme-card, .gap-box, .quote { border-color: #ccc; background: #fff; }
+  .panel, .theme-card, .gap-box, .quote, .freq-chart { border-color: #ccc; background: #fff; }
+  .freq-bar { background: #333 !important; }
+  .freq-name { color: #111; }
+  .freq-stat, .freq-legend { color: #444; }
   .brand-mark, .badge, .ad-slot, .actions, .share-box, .chips, #generateBtn, #clearBtn, .source-box, #corsNote, #status { display: none !important; }
   .grid { display: block; }
   a { color: #06c; }
